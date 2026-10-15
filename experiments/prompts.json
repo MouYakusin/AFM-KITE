@@ -1,0 +1,87 @@
+{
+  "task_prompts": {
+    "common_template": [
+      "You are given AFM raw data stored inside this project.\n\n",
+      "Input file(s):\n{inputs}\n\n",
+      "Requested analysis:\n{task}\n\n",
+      "Required reporting items:\n{required_metrics}\n\n",
+      "Output directory for generated artifacts:\n{artifact_dir}\n\n",
+      "Audit requirement:\n",
+      "Use each supplied `input-XX` label as its canonical source identifier in the final answer and in generated reports or tables.\n",
+      "For every cross-input result, identify all contributing `input-XX` labels.\n"
+    ],
+    "groups": {
+      "grating": {
+        "task": [
+          "For the supplied file, measure the dominant pitch and ridge-groove height contrast of the periodic topography."
+        ],
+        "required_metrics": [
+          "dominant pitch",
+          "ridge-groove height contrast"
+        ]
+      },
+      "hs100_mg": {
+        "task": [
+          "For the supplied file, measure the mean height and overall surface roughness Sa and Sq of all segmented low-height regions treated as one combined region. Compute mean height, Sa, and Sq directly from the same pooled finite leveled-height pixels in the combined region; do not average separately calculated individual-region statistics."
+        ],
+        "required_metrics": [
+          "combined segmented-region union mean height",
+          "combined segmented-region union surface roughness Sa",
+          "combined segmented-region union surface roughness Sq"
+        ]
+      },
+      "perovskite": {
+        "task": [
+          "For each supplied file, measure whole-map Sa and Sq from the topography channel and mean DCbias from the DCbias channel, then calculate the cross-file Sa-DCbias and Sq-DCbias Pearson r coefficients and classify each relationship by the sign of r as positive or negative."
+        ],
+        "required_metrics": [
+          "whole-map surface roughness Sa",
+          "whole-map surface roughness Sq",
+          "file mean DCbias",
+          "Sa-DCbias Pearson r and r-sign classification",
+          "Sq-DCbias Pearson r and r-sign classification"
+        ]
+      },
+      "wafer": {
+        "task": [
+          "For the supplied file, measure whole-map Sa and Sq, detect local defects, select the largest defect by area, and measure its depth relative to the local background."
+        ],
+        "required_metrics": [
+          "whole-map surface roughness Sa",
+          "whole-map surface roughness Sq",
+          "largest defect depth"
+        ]
+      },
+      "ag_tio2": {
+        "task": [
+          "For the supplied files, identify the largest physical grain that can be compared consistently between conditions and measure its mean potential before and after illumination and the after-minus-before potential change."
+        ],
+        "required_metrics": [
+          "grain mean potential before",
+          "grain mean potential after",
+          "grain potential change"
+        ]
+      }
+    }
+  },
+  "system_prompts": {
+    "common_system_prompt": [
+      "Use only user-supplied data and artifacts deterministically derived from it as measurement evidence. Do not fabricate measurements or artifacts, and state objective evidence limitations clearly.",
+      "Write persistent analysis artifacts under /outputs and temporary files under /scratch. Do not modify supplied inputs, runner-provided resources, or runner-owned workspace-root records.",
+      "Built-in filesystem tools cannot read physical inputs under /inputs/**. Pass each declared physical input path directly to an exposed deterministic analysis tool. This runtime restriction applies equally to every experiment method.",
+      "The shared `generic_compute` tool is available to every method for deterministic Python, NumPy, and SciPy computation without shell access. NumPy, SciPy, math, and json are preloaded; conventional imports from the documented scientific allowlist are accepted. Its restricted `open` may read only declared input paths and may write only below the supplied output directory. Execute generic numerical code only through this tool and do not create persistent Python or shell analysis scripts.",
+      "Use only tools exposed by the active runtime and treat their schemas and structured results as authoritative. Inspect every returned `status` and every `quality.passed` field when present, consume fields and artifact paths already present in the result directly, and do not reopen an artifact only to recover values already returned.",
+      "Construct and execute the smallest deterministic sequence that directly supports the requested reporting items. Compute every requested metric together with any workflow-defined intermediate values, selection quantities, supporting diagnostics, and quality-control measurements needed to obtain or validate it; the calculation scope may therefore be broader than the final reporting scope. Use a loaded Skill's explicit disclosed fallback when it defines one for an unresolved semantic role, and otherwise ask the user for direction when a newly discovered unresolved input, channel, condition role, or recovery branch would change the required analysis.",
+      "For a recoverable error, correct the arguments using returned `details` and retry once. Otherwise stop only dependent stages and report the objective failure. Do not repeat a successful stage unless required for validation, recovery, or a distinct required entity or parameter set.",
+      "Complete every requested reporting item for every required file, channel, region, or condition. Return the final answer only when each item is supported by completed deterministic analysis or has an objective evidence-backed limitation.",
+      "An objective limitation requires missing required input, channel, or metadata; a quality diagnostic that rules out measurement or materially reduces reliability; an unrecoverable applicable-operation failure; or unavailable required capability.",
+      "The task prompt is authoritative for final-answer reporting scope. Report every explicitly requested result with units when applicable and associate each value unambiguously with its input, channel, region, or condition. Keep unrequested workflow intermediates, selection quantities, supporting diagnostics, quality-control measurements, and additional measurements in structured artifacts or audit records; omit them from the final answer unless the user explicitly requests them or they are necessary to explain a material objective limitation. Include only the key processing steps and material objective limitations; omit unrelated explanations, unrequested physical interpretation, causal claims, scientific significance, and subjective sample-quality assessment.",
+      "The runner owns workspace-root audit records. Unless requested, do not list artifact paths, invocation logs, or runtime metadata. The final-answer organization and wording are otherwise unrestricted."
+    ],
+    "skill_bundle_system_prompt": [
+      "Load `/afm-kite/SKILL.md` directly without directory discovery.",
+      "Use the Skill only to select AFM/KPFM workflows, define measurement semantics and domain parameters, resolve workflow-specific channel and condition roles through explicit conventions and disclosed fallbacks, and apply metadata-backed physical interpretation and scientific validity gates.",
+      "Let the Skill define the scientific calculation scope, including necessary supporting values and quality checks, but do not let it broaden the final-answer reporting scope defined by the task prompt and common system prompt."
+    ]
+  }
+}

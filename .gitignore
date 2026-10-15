@@ -1,0 +1,47 @@
+# Secrets and local configuration
+api.env
+api.env.*
+!api.env.example
+.env
+.env.*
+!.env.example
+
+
+# Python bytecode and tool caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tox/
+.nox/
+
+# Virtual environments and package builds
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+
+# Test and coverage output
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# AFM runtime caches and generated artifacts
+.cache/
+.matplotlib-cache/
+outputs/
+scratch/
+experiments_outputs/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
