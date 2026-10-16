@@ -1,6 +1,6 @@
 """Canonical public AFM tool catalog.
 
-This is the only maintained list of model-exposed AFM analysis tools.
+This is the only maintained list of model-exposed Deterministic AFM Tools.
 """
 
 from __future__ import annotations

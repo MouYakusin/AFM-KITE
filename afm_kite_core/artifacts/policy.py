@@ -1,6 +1,6 @@
 """Dependency-light policies for routing generated analysis artifacts.
 
-AFM-KITE Agent Runs keep the generic ``outputs/data/<stage>`` layout.
+AFM-KITE LLM Agent Runs keep the generic ``outputs/data/<stage>`` layout.
 Experiment runs classify every default tool output by its contributing input IDs.
 This classification separates per-input and cross-input results in audit artifacts.
 """

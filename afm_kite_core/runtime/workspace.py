@@ -1,4 +1,4 @@
-"""Isolated AFM-KITE Agent Run paths, resource snapshots, and permissions."""
+"""Isolated AFM-KITE LLM Agent Run paths, resource snapshots, and permissions."""
 
 from __future__ import annotations
 

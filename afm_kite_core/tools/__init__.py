@@ -1,4 +1,4 @@
-"""Public generic tools for AFM analysis agents and local integrations."""
+"""Public Deterministic AFM Tools for AFM-KITE and local integrations."""
 
 from .data_group import data_group_build
 from .features import feature_line_build, feature_select

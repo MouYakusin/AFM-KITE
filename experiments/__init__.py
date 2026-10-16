@@ -1,1 +1,1 @@
-"""Independent experiment orchestration for AFM Agent evaluations."""
+"""Independent component-ablation evaluation orchestration for AFM-KITE."""

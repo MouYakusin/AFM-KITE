@@ -1,4 +1,4 @@
-"""AFM-KITE Agent Run recording, finalisation, and execution lifecycle."""
+"""AFM-KITE LLM Agent Run recording, finalisation, and execution lifecycle."""
 
 from __future__ import annotations
 
@@ -38,12 +38,12 @@ AgentFactory = Callable[[RunLayout, Sequence[Mapping[str, Any]]], Any]
 
 
 class RunTimeoutError(TimeoutError):
-    """Raised when one AFM-KITE Agent Run exceeds its safety ceiling."""
+    """Raised when one AFM-KITE LLM Agent Run exceeds its safety ceiling."""
 
 
 @contextmanager
 def run_hard_timeout(seconds: float):
-    """Interrupt one synchronous AFM-KITE Agent Run at a wall-clock deadline."""
+    """Interrupt one synchronous AFM-KITE LLM Agent Run at a wall-clock deadline."""
     if seconds <= 0:
         raise ValueError("Run hard timeout must be positive")
     if threading.current_thread() is not threading.main_thread():
@@ -56,7 +56,7 @@ def run_hard_timeout(seconds: float):
     started = time.monotonic()
 
     def raise_timeout(_signum: int, _frame: Any) -> None:
-        raise RunTimeoutError("AFM-KITE Agent Run exceeded its execution limit")
+        raise RunTimeoutError("AFM-KITE LLM Agent Run exceeded its execution limit")
 
     signal.signal(signal.SIGALRM, raise_timeout)
     signal.setitimer(signal.ITIMER_REAL, seconds)

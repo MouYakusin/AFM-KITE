@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run reproducible AFM experiments with constrained-random method sampling."""
+"""Run reproducible AFM-KITE component-ablation experiments."""
 
 from __future__ import annotations
 

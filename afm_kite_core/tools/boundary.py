@@ -1,4 +1,4 @@
-"""Shared result handling for public AFM analysis tools.
+"""Shared result handling for public Deterministic AFM Tools.
 
 The public tool layer always returns Python dictionaries.
 Deterministic stage implementations return mappings and let exceptions propagate here.

@@ -4,7 +4,7 @@ Use when each physical input contributes one height-like topography measurement 
 
 ## Supported Sample Types
 
-- Perovskite sample series with topography and DC-bias or another target-signal channel in each input.
+- Optional perovskite sample series with topography and DC-bias or another target-signal channel in each input.
 - Other multi-sample, concentration-series, treatment-series, or condition-series AFM/KPFM datasets with one comparable topography channel and one comparable target channel per input.
 
 Use the workflow only when the target includes per-input topography/signal measurements followed by a cross-input correlation. Sample type alone is not sufficient.

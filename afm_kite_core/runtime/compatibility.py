@@ -16,7 +16,7 @@ def require_agent_python(version_info: Sequence[int] | None = None) -> None:
         required = ".".join(str(part) for part in MIN_AGENT_PYTHON)
         detected = ".".join(str(part) for part in current)
         raise RuntimeError(
-            f"The model-backed AFM Agents require Python {required}+; "
+            f"The AFM-KITE LLM Agent and Evaluation Runner require Python {required}+; "
             f"detected Python {detected}. The deterministic afm_kite_core "
             "package remains supported on Python 3.9+."
         )

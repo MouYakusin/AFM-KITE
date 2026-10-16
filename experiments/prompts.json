@@ -22,7 +22,7 @@
       },
       "hs100_mg": {
         "task": [
-          "For the supplied file, measure the mean height and overall surface roughness Sa and Sq of all segmented low-height regions treated as one combined region. Compute mean height, Sa, and Sq directly from the same pooled finite leveled-height pixels in the combined region; do not average separately calculated individual-region statistics."
+          "For the supplied array sample, measure Mean Height and Region Roughness (Sa and Sq) for all segmented low-height regions treated as one combined region. Compute the mean height, Sa, and Sq directly from the same pooled finite leveled-height pixels in the combined region; do not average separately calculated individual-region statistics."
         ],
         "required_metrics": [
           "combined segmented-region union mean height",
@@ -44,7 +44,7 @@
       },
       "wafer": {
         "task": [
-          "For the supplied file, measure whole-map Sa and Sq, detect local defects, select the largest defect by area, and measure its depth relative to the local background."
+          "For the supplied wafer sample, measure Whole-Map Roughness (Sa and Sq), detect local defects, select the largest defect by area, and measure its Largest Defect Depth relative to the local background."
         ],
         "required_metrics": [
           "whole-map surface roughness Sa",
@@ -54,7 +54,7 @@
       },
       "ag_tio2": {
         "task": [
-          "For the supplied files, identify the largest physical grain that can be compared consistently between conditions and measure its mean potential before and after illumination and the after-minus-before potential change."
+          "For the supplied granular sample pair, identify the largest physical grain that can be compared consistently between conditions and measure its mean potential before and after illumination and its Grain Potential Change, calculated as after minus before."
         ],
         "required_metrics": [
           "grain mean potential before",

@@ -1,15 +1,15 @@
-# AFM Evaluation Runner
+# AFM-KITE Component-ablation Evaluation
 
-`run_experiments.py` evaluates a 2 x 2 capability-bundle factorial while preserving the established method names:
+`run_experiments.py` evaluates the four conditions in the AFM-KITE component-ablation study. The implementation keeps the method names used by the runner while mapping them to the paper terminology:
 
-| Method | Shared NumPy/SciPy baseline | Skill bundle | Tool bundle |
-|---|---:|---:|---:|
-| `basic_agent` | 1 | 0 | 0 |
-| `skill_agent` | 1 | 1 | 0 |
-| `tool_agent` | 1 | 0 | 1 |
-| `skill_tool_agent` | 1 | 1 | 1 |
+| Runner method | Paper condition | Shared NumPy/SciPy baseline | AFM Analysis Skill | Deterministic AFM Tools |
+|---|---|---:|---:|---:|
+| `basic_agent` | Baseline | 1 | 0 | 0 |
+| `skill_agent` | Skill | 1 | 1 | 0 |
+| `tool_agent` | Tools | 1 | 0 | 1 |
+| `skill_tool_agent` | AFM-KITE | 1 | 1 | 1 |
 
-`basic_agent` is therefore a generic scientific-compute baseline, not a no-capability control. Every method receives the same restricted `generic_compute` StructuredTool, which exposes NumPy and SciPy in an isolated worker without shell access or persistent analysis scripts. Conventional imports of `json`, `math`, `numpy` (including `fft`, `linalg`, and `polynomial`), and the selected SciPy modules `fft`, `interpolate`, `linalg`, `ndimage`, `optimize`, `signal`, `spatial`, and `stats` resolve to preloaded safe modules. Restricted `open` may read only declared inputs and may write only below the policy-routed output directory. The worker cannot import the repository's AFM implementations.
+The paper treats AFM-KITE as the complete LLM Agent–AFM Analysis Skill–Deterministic AFM Tools framework. `basic_agent` is the Baseline condition, not a no-capability control: every condition receives the same restricted `generic_compute` StructuredTool, which exposes NumPy and SciPy in an isolated worker without shell access or persistent analysis scripts. Conventional imports of `json`, `math`, `numpy` (including `fft`, `linalg`, and `polynomial`), and the selected SciPy modules `fft`, `interpolate`, `linalg`, `ndimage`, `optimize`, `signal`, `spatial`, and `stats` resolve to preloaded safe modules. Restricted `open` may read only declared inputs and may write only below the policy-routed output directory. The worker cannot import the repository's AFM implementations.
 
 ### Generic-compute safety limits
 
@@ -26,13 +26,13 @@ The public interface and host-side subprocess controller live in `runner/generic
 
 These controls reduce accidental resource exhaustion and obvious escape paths, but the Python AST/builtin restrictions are not a complete hostile-code security boundary. Production use with mutually untrusted submitters must additionally place the worker in an OS/container sandbox with a read-only filesystem, a dedicated writable output mount, no network, a non-root user, syscall filtering, and cgroup or equivalent CPU/memory/PID limits.
 
-The Skill bundle contains the copied `afm-kite` skill, its references, its minimal assignment prompt, and the associated context-loading overhead. The Tool bundle contains only the 22 dedicated deterministic AFM tools and their necessary callable schemas. Bundle-level results must not be attributed to a single file, prompt, or callable.
+The Skill condition contains the copied `afm-kite` AFM Analysis Skill, its references, its minimal assignment prompt, and the associated context-loading overhead. The Tools condition exposes the registered Deterministic AFM Tools and their necessary callable schemas. The AFM-KITE condition contains both. Condition-level results must not be attributed to a single file, prompt, or callable.
 
-Workspace scoping, artifact classification, standard error results, result compaction, provenance, audit traces, model settings, and resource limits are shared infrastructure. The two Tool-bundle methods add the dedicated AFM tool catalog to the shared `generic_compute` tool.
+Workspace scoping, artifact classification, standard error results, result compaction, provenance, audit traces, model settings, and resource limits are shared infrastructure. The Tools and AFM-KITE conditions add the Deterministic AFM Tool catalog to the shared `generic_compute` tool.
 
 Every cell uses `deepseek-v4-pro` with Thinking Mode explicitly disabled and `temperature=0.0`. Repeated Runs remain necessary to measure residual service-side and agent-workflow variation.
 
-The capability-ceiling study uses model-call, tool-call, and recursion guards rather than an equal-cost budget. Total tokens are recorded but never capped. Tool-call count and token use are descriptive diagnostics only and do not affect answer quality or Run acceptance.
+The component-ablation study uses model-call, tool-call, and recursion guards rather than an equal-cost budget. Total tokens are recorded but never capped. Tool-call count and token use are descriptive diagnostics only and do not affect operational completion or Run acceptance.
 
 ## Prompt composition
 
@@ -47,23 +47,24 @@ Experiment prompts live in the `system_prompts` namespace of `prompts.json`:
 | `tool_agent` | `common` |
 | `skill_tool_agent` | `common + skill_bundle` |
 
-The Common prompt exclusively defines every method's evidence boundary, workspace policy, physical-input filesystem restriction, shared `generic_compute` baseline, structured-result handling, retry policy, completion rule, and reporting contract. It does not name a treatment-specific AFM workflow or dedicated callable. The Skill-bundle prompt only assigns `/afm-kite/SKILL.md` and limits the Skill to AFM/KPFM workflow selection, measurement semantics and domain parameters, workflow-specific channel and condition-role resolution, metadata-backed physical interpretation, and scientific validity gates. It also makes explicit that the Skill may broaden the scientific calculation scope with necessary supporting values and quality checks, but may not broaden the final-answer scope. It does not restate the Common prompt's runtime policies. Task prompts own case inputs, required metrics, the high-level comparison target, dynamic artifact routing, and the authoritative final-answer reporting scope. For Skill methods, workflow-specific condition-role resolution follows the Skill's priority order: explicit user/task semantics, then a validated filename convention, then a one-time disclosed randomized fallback for an otherwise unresolved two-member pair. The runner validates the repository's known case membership and uses deterministic input ordering before model execution; non-Skill methods receive no additional role-resolution instruction. The Tool bundle adds only the dedicated deterministic AFM callables and their necessary schemas; it adds no Tool-specific system prompt. Consequently, `basic_agent` and `tool_agent` receive byte-identical system prompts, as do `skill_agent` and `skill_tool_agent`. Tool availability, rather than additional behavioral instructions, is the Tool treatment.
+The Common prompt exclusively defines every condition's evidence boundary, workspace policy, physical-input filesystem restriction, shared `generic_compute` baseline, structured-result handling, retry policy, completion rule, and reporting contract. It does not name a treatment-specific AFM workflow or dedicated callable. The Skill-condition prompt only assigns `/afm-kite/SKILL.md` and limits the AFM Analysis Skill to AFM/KPFM workflow selection, measurement semantics and domain parameters, workflow-specific channel and condition-role resolution, metadata-backed physical interpretation, and scientific validity gates. It also makes explicit that the Skill may broaden the scientific calculation scope with necessary supporting values and quality checks, but may not broaden the final-answer scope. The Tools condition adds only the Deterministic AFM Tool callables and their necessary schemas; it adds no separate behavioral prompt. Task prompts own case inputs, required metrics, the high-level comparison target, dynamic artifact routing, and the authoritative final-answer reporting scope. For Skill and AFM-KITE conditions, workflow-specific condition-role resolution follows the Skill's priority order: explicit user/task semantics, then a validated filename convention, then a one-time disclosed randomized fallback for an otherwise unresolved two-member pair. The runner validates the repository's known case membership and uses deterministic input ordering before model execution. Consequently, Baseline and Tools receive byte-identical system prompts, as do Skill and AFM-KITE; their difference is the availability of the Skill and/or Deterministic AFM Tools.
 
 The Skill expresses scientific operations independently of runtime capability. For each operation it uses a matching dedicated callable when exposed and otherwise preserves the same scientific definition through `generic_compute`. Workflow cards may calculate and preserve intermediate values, selection quantities, supporting diagnostics, and quality-control measurements required to produce or validate the requested results. Those supporting values remain in structured artifacts or audit records unless the task requests them or they are needed to explain a material objective limitation. Tool schemas and `tool-reference.md` describe callable names, arguments, constraints, structured results, and error payload fields; they do not repeat the Common prompt's retry, dependency, artifact-routing, or final-answer policies. Workflow selection, parameter choice, and physical interpretation remain in the Skill.
 
 Every method follows the same content-only final-answer contract: report only the requested results, the identity information and units needed to interpret them, the key processing steps needed to understand them, and material objective limitations. No fixed headings, table, JSON schema, or exact metric-label wording is required. Final answers need not reproduce invocation logs, runtime metadata, artifact paths, unrequested metrics, or supporting diagnostics; those remain available in structured artifacts and the Run audit.
 
-## Data cases
+## Manuscript task corpus and data cases
 
 Tasks and required reporting items are defined in the `task_prompts` namespace of `prompts.json`.
 
-- `grating`: one physical file per case.
-- `hs100_mg`: one physical file per case; segment all low-height regions, combine every positive-label region into one union mask, and report one Sa and one Sq calculated directly from all finite leveled-height pixels in that union.
-- `perovskite`: files named `perovskite<group>-<item>.txt`; the group number defines the case, item numbers must start at 1 and be consecutive, and at least three files are required for Pearson correlation.
-- `wafer`: one physical file per case.
-- `ag_tio2`: one before/after pair per case. The runner accepts only `Ag-TiO2-<case>-<before|after>.txt`, requires one member of each role, and orders them as before then after for stable case construction. Skill methods still resolve and disclose the condition-role mapping according to the Skill rather than treating runner order alone as scientific evidence.
+- `grating`: six one-file cases for periodic pitch and ridge-groove contrast.
+- `wafer`: four one-file cases for whole-map roughness and largest-defect depth.
+- `hs100_mg` (paper category: **array**): two one-file cases; segment low-height regions, combine the positive-label regions into one union mask, and report region roughness and mean height from the requested pooled pixels.
+- `ag_tio2` (paper category: **granular**): four before/after pairs; identify the largest comparable grain and report the mean potential before illumination, after illumination, and the ordered after-minus-before change. Skill and AFM-KITE conditions resolve and disclose condition roles according to the Skill rather than treating runner order alone as scientific evidence.
 
-### Current live perovskite cases
+The manuscript corpus therefore contains 16 datasets across four sample categories. The repository also retains a `perovskite` multi-input correlation group for development and extended evaluation; it is outside the reported manuscript corpus and should not be included in paper totals without updating the manuscript.
+
+### Optional perovskite extension
 
 The perovskite data were regrouped on 2026-08-19 so that the first numeric component denotes test position and the second denotes sample number. The current live roster is:
 
@@ -72,11 +73,11 @@ The perovskite data were regrouped on 2026-08-19 so that the first numeric compo
 | `perovskite-group-1` | `perovskite1-1.txt`, `perovskite1-2.txt`, `perovskite1-3.txt` | test position 1 across samples 1–3 |
 | `perovskite-group-2` | `perovskite2-1.txt`, `perovskite2-2.txt`, `perovskite2-3.txt` | test position 2 across samples 1–3 |
 
-The current live corpus therefore contains 18 cases in total: grating 6, HS100-MG 2, perovskite 2, wafer 4, and Ag-TiO2 4. See [`data/perovskite/README.md`](../data/perovskite/README.md) for the old-to-new filename mapping and measured DCbias means.
+The local `data/perovskite/` directory contains the filename mapping and measured DCbias means. These cases are retained for development and extended evaluation, not for the four-category manuscript totals; the raw data directory is intentionally excluded from the committed repository.
 
 Existing `experiments_outputs/perovskite-*` directories are immutable historical batches whose snapshots preserve the pre-regrouping inputs. Do not resume their experiment-series IDs with the live regrouped files. Start a new series ID; compatibility checks are expected to reject an old series because case membership and input digests changed.
 
-Before model execution, the runner freezes every selected input and, when needed, the AFM-KITE Skill into one batch-level snapshot. The snapshot manifest records input sizes and BLAKE2b digests, plus an input-only combined digest. Skill resources record only their paths and sizes: the runner neither generates nor stores Skill content hashes. Every Run verifies input contents and the Skill file inventory and sizes before copying resources into its workspace. Skill methods receive the copied Skill snapshot under `/afm-kite/`, which is the assigned treatment.
+Before model execution, the runner freezes every selected input and, when needed, the AFM Analysis Skill into one batch-level snapshot. The snapshot manifest records input sizes and BLAKE2b digests, plus an input-only combined digest. Skill resources record only their paths and sizes: the runner neither generates nor stores Skill content hashes. Every Run verifies input contents and the Skill file inventory and sizes before copying resources into its workspace. Skill and AFM-KITE conditions receive the copied Skill snapshot under `/afm-kite/`.
 
 ## Running experiments
 
@@ -193,7 +194,7 @@ Each invocation has an isolated workspace:
 ```text
 runs/001-skill_tool_agent-<case>-success-01-attempt-01/
 ├── inputs/
-├── afm-kite/      # Skill-bundle methods only
+├── afm-kite/      # Skill and AFM-KITE conditions only
 ├── outputs/
 │   ├── by_input/input-XX/
 │   └── cross_input/

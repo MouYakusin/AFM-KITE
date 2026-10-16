@@ -1,12 +1,12 @@
 # AFM-KITE
 
-AFM-KITE combines a model-backed AFM-KITE Agent, a deterministic AFM/KPFM analysis core, a Deep Agents Skill, and an isolated capability-evaluation system.
+AFM-KITE (Knowledge Integration with Tool Execution for Atomic Force Microscopy) is a framework for reliable quantitative AFM/KPFM data analysis. It combines an LLM Agent, an AFM Analysis Skill that encodes reusable procedural knowledge, and Deterministic AFM Tools that execute established numerical operations.
 
 ## Architecture
 
 ```text
-agent.py                         AFM-KITE Agent entry point
-afm_kite_core/              shared deterministic implementation
+agent.py                         AFM-KITE LLM Agent entry point
+afm_kite_core/                   Deterministic AFM Tools and execution core
   algorithms/                   in-memory NumPy/SciPy numerical algorithms
   data_io/                      AFM matrix, channel, and metadata readers
   operations/                   deterministic workflow orchestration
@@ -14,19 +14,27 @@ afm_kite_core/              shared deterministic implementation
   runtime/                      Agent scoping, Run lifecycle, and observability
   contracts.py                  shared types and artifact shapes
   serialization.py              shared JSON-safe conversion helpers
-  tools/                        25 generic tools split by capability
+  tools/                        25 Deterministic AFM Tools split by capability
     boundary.py                 shared public tool-result contract
     registry.py                 single canonical public tool list
-afm-kite/             Deep Agents Skill and workflow knowledge
-experiments/                    Evaluation Runner, Agent Variants, and audits
-data/                           supplied AFM/KPFM datasets
-outputs/                        analysis artifacts
-experiments_outputs/            isolated experiment runs
+afm-kite/                         AFM Analysis Skill and workflow knowledge
+experiments/                      Component-ablation Evaluation Runner and audits
+data/                             local AFM/KPFM inputs (ignored)
+outputs/                          generated analysis artifacts (ignored)
+experiments_outputs/              isolated experiment runs (ignored)
 ```
 
-The AFM-KITE Agent and Evaluation Agent Variants do not import one another and own separate prompts and run orchestration. They share the deterministic execution profile in `afm_kite_core`, including exact-input filesystem-read denial and direct execution of fully determined workflow graphs. Evaluation methods may also receive a per-batch snapshot of the same AFM-KITE Skill used by the AFM-KITE Agent, and both entry points use the same local model-credential source by default.
+The framework has three distinct roles:
 
-## AFM-KITE Agent
+- **LLM Agent:** interprets the request, identifies the measurement objective, selects and loads a workflow, and orchestrates execution.
+- **AFM Analysis Skill:** stores reusable procedural knowledge, including workflow definitions, metric definitions, parameter rules, quality checks, and reporting requirements.
+- **Deterministic AFM Tools:** execute established ingestion, preprocessing, feature-identification, and measurement operations through tested callable interfaces.
+
+AFM-KITE refers to this integrated framework, not to a new AFM algorithm or to the Skill alone. The same deterministic execution profile is shared by the interactive entry point and the evaluation conditions.
+
+Raw inputs, credentials, generated artifacts, and experiment batches remain local by default. The committed repository contains the executable framework, Skill, prompts, and configuration templates; it does not publish measurement data or secrets.
+
+## LLM Agent entry point
 
 `agent.py` owns the analysis model settings, prompt, limits, fixed Skill assignment, and interactive entry point:
 
@@ -44,19 +52,19 @@ cp api.env.example api.env
 # Edit api.env and set DEEPSEEK_API_KEY.
 ```
 
-The AFM-KITE Agent uses `deepseek-v4-pro` with Thinking Mode explicitly enabled and `temperature=0`. Its execution ceilings are aligned with the Evaluation Agent Variants: each Run has a recursion limit of 200, a 100-model-call limit, a 200-tool-call limit, a 1200-second wall-clock timeout, and a 180-second timeout for each deterministic tool invocation.
+The default LLM Agent uses `deepseek-v4-pro` with Thinking Mode explicitly enabled and `temperature=0`. Each Run has a recursion limit of 200, a 100-model-call limit, a 200-tool-call limit, a 1200-second wall-clock timeout, and a 180-second timeout for each deterministic tool invocation.
 
-Each analysis invocation gets a private sandbox at `outputs/runs/<run-id>/`. Explicit inputs and the AFM-KITE Skill are copied into the same sandbox before model execution. The Agent's filesystem backend and deterministic tools are rooted at that Run—not at the project directory—so it sees paths such as `/inputs/input-01/sample.txt`, `/afm-kite/`, `/outputs`, and `/scratch`. Only the Run sandbox is placed under the permission guard; unrelated project files and directories keep their normal permissions throughout execution. Persistent analysis artifacts belong in the Agent-visible `/outputs`; `/scratch` is reserved for disposable runtime files.
+Each analysis invocation gets a private sandbox at `outputs/runs/<run-id>/`. Explicit inputs and the AFM Analysis Skill are copied into the same sandbox before model execution. The LLM Agent's filesystem backend and Deterministic AFM Tools are rooted at that Run—not at the project directory—so it sees paths such as `/inputs/input-01/sample.txt`, `/afm-kite/`, `/outputs`, and `/scratch`. Only the Run sandbox is placed under the permission guard; unrelated project files and directories keep their normal permissions throughout execution. Persistent analysis artifacts belong in the Agent-visible `/outputs`; `/scratch` is reserved for disposable runtime files.
 
-The AFM-KITE Agent always loads the AFM-KITE Skill. Its `SYSTEM_PROMPT` owns the dynamic output and scratch roots, host-managed Run records, physical-input filesystem restriction, structured-result consumption, retry and dependency policy, completion rules, the default four-heading answer format, and the fixed Skill assignment. Dedicated AFM capabilities are supplied through registered tools and their callable schemas rather than an additional tool-specific prompt. Optional Skill exposure remains an experiment-only factor.
+The default entry point exposes the AFM Analysis Skill and Deterministic AFM Tools to the LLM Agent. Its runtime contract owns the dynamic output and scratch roots, host-managed Run records, physical-input filesystem restriction, structured-result consumption, retry and dependency policy, completion rules, the default four-heading answer format, and the fixed Skill assignment. Tool capabilities are supplied through registered callable schemas rather than a separate behavioral prompt.
 
-The Agent cannot create subagents or use the generic `write_file`, `edit_file`, or `write_todos` tools, so applicable analysis must go through the deterministic AFM tools. The runtime denies built-in filesystem reads anywhere under `/inputs/**`; each physical raw AFM/KPFM file enters the dedicated workflow through exactly one `data_ingest` call. Each ingestion saves every detected channel, while downstream stages reuse only the required channel artifacts and matching metadata. When several files require a shared structure, the Agent passes their manifests to `data_group_build` with a relationship grounded by the user or loaded Skill; the safe unspecified default is `collection`. Filenames are not relationship evidence unless the Skill defines an explicit workflow-specific convention, such as the validated Ag-TiO2 before/after role mapping. For that workflow, explicit user semantics take priority over filenames. If exactly two members remain unresolved, the Skill allows one disclosed randomized role assignment; the Agent must report the mapping and state that all condition labels and the change sign are conditional on it.
+The Agent cannot create subagents or use the generic `write_file`, `edit_file`, or `write_todos` tools, so applicable analysis must go through the exposed deterministic capabilities. The runtime denies built-in filesystem reads anywhere under `/inputs/**`; each physical raw AFM/KPFM file enters the dedicated workflow through exactly one `data_ingest` call. Each ingestion saves every detected channel, while downstream stages reuse only the required channel artifacts and matching metadata. When several files require a shared structure, the Agent passes their manifests to `data_group_build` with a relationship grounded by the user or loaded Skill; the safe unspecified default is `collection`. Filenames are not relationship evidence unless the Skill defines an explicit workflow-specific convention, such as the validated Ag-TiO2 before/after role mapping. For that workflow, explicit user semantics take priority over filenames. If exactly two members remain unresolved, the Skill allows one disclosed randomized role assignment; the Agent must report the mapping and state that all condition labels and the change sign are conditional on it.
 
 Every finalized Run writes aggregate model usage to `run.json` and one record per model call to `model_trace.json`. The trace includes normalized input, output, total, reasoning, and prompt-cache token counts when the provider returns them. Usage accumulated before a failed or interrupted Run is retained.
 
-## Deterministic tools
+## Deterministic AFM Tools
 
-The public tools are exported from `afm_kite_core.tools`. Their names remain generic: they operate on matrices, regions, profiles, manifests, and data groups. AFM/KPFM interpretation and workflow selection live in the Skill.
+The public Deterministic AFM Tools are exported from `afm_kite_core.tools`. Their names remain generic: they operate on matrices, regions, profiles, manifests, and data groups. AFM/KPFM interpretation, workflow selection, and parameter reasoning live in the AFM Analysis Skill.
 
 The active implementation uses a tool-layer plus algorithm-layer design:
 
@@ -86,7 +94,7 @@ Python support is split by runtime boundary:
 | Component | Supported Python |
 |---|---|
 | Deterministic `afm_kite_core` | Python 3.9+ |
-| AFM-KITE Agent and Evaluation Agent Variants | Python 3.11+ |
+| LLM Agent runtime and Evaluation Runner | Python 3.11+ |
 
 `requirements.txt` pins the project's direct Agent and analysis runtime dependencies; pip resolves their transitive dependencies. Both Agent model builders enforce the Python 3.11+ boundary before loading their runtime dependencies.
 
@@ -110,9 +118,18 @@ The provenance block is returned with the public tool result and is automaticall
 
 Non-path arguments are recorded as supplied. In particular, `generic_compute` provenance contains the submitted computation code, so callers must not place secrets in code or ordinary parameters. Strict reproducibility or evidentiary workflows can additionally record source-control revision, dependency/runtime versions, and random seeds.
 
-## Evaluation
+## Component-ablation evaluation
 
-`experiments/runner/agent.py` is the Evaluation Agent Variant factory. The Evaluation Runner does not import the top-level AFM-KITE Agent in `agent.py`:
+`experiments/runner/agent.py` is the Evaluation Runner's LLM Agent factory. The runner evaluates the same four conditions described in the manuscript:
+
+| Code method | Paper condition | Added capability |
+|---|---|---|
+| `basic_agent` | Baseline | shared generic computation only |
+| `skill_agent` | Skill | AFM Analysis Skill |
+| `tool_agent` | Tools | Deterministic AFM Tools |
+| `skill_tool_agent` | AFM-KITE | AFM Analysis Skill + Deterministic AFM Tools |
+
+All conditions use the same task prompt, common runtime contract, `deepseek-v4-pro` configuration, and general NumPy/SciPy computation. The repository records operational completion, execution time, tool calls, prompts, artifacts, and traces. Numerical agreement with expert references is a separate evaluation endpoint and is not inferred from execution success alone.
 
 ```bash
 python -m experiments.run_experiments \
@@ -122,18 +139,13 @@ python -m experiments.run_experiments --grating --all-cases \
   --methods basic_agent skill_agent tool_agent skill_tool_agent
 ```
 
-See [experiments/README.md](experiments/README.md) for case discovery, capability variants, output layout, and audit contracts.
+See [experiments/README.md](experiments/README.md) for case discovery, ablation conditions, output layout, and audit contracts.
 
-### Current perovskite data layout
+### Manuscript evaluation corpus
 
-The live perovskite dataset was regrouped on 2026-08-19 into two test-position cases with three samples per case:
+The paper-reported corpus contains four AFM sample categories and 16 datasets: six grating samples, four wafer samples, two array samples (`hs100_mg`), and four granular samples (`ag_tio2`). The corresponding targets are periodic pitch and ridge-groove contrast, whole-map roughness and largest-defect depth, segmented-region roughness and mean height, and before/after grain potential change.
 
-```text
-perovskite-group-1: data/perovskite/perovskite1-1.txt ... perovskite1-3.txt
-perovskite-group-2: data/perovskite/perovskite2-1.txt ... perovskite2-3.txt
-```
-
-In this naming scheme, the first number is the test position/case and the second number is the sample index. See [data/perovskite/README.md](data/perovskite/README.md) for the complete mapping and DCbias means. Frozen historical perovskite batches under `experiments_outputs/` retain their original inputs and must not be resumed against this regrouped live dataset.
+The runner also retains a perovskite cross-input correlation group for development and extended evaluation. It is outside the four-category, 16-dataset corpus reported in the manuscript and must not be included in manuscript totals without a corresponding revision of the paper.
 
 ## Skill
 

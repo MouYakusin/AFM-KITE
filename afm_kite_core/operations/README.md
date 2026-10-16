@@ -1,6 +1,6 @@
 # Internal operations
 
-This package contains deterministic workflows behind the public callables in `afm_kite_core.tools`. It coordinates algorithms, data I/O, and generated artifacts, but it is not a model-facing or stable public API.
+This package contains deterministic workflow implementations behind the public Deterministic AFM Tools in `afm_kite_core.tools`. It coordinates established numerical operations, data I/O, and generated artifacts, but it is not a model-facing or stable public API. The AFM Analysis Skill supplies workflow semantics and parameter rules; these modules execute the resulting stages.
 
 | Public module | Internal implementation |
 |---|---|

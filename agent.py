@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AFM-KITE entry point."""
+"""AFM-KITE LLM Agent entry point."""
 
 from __future__ import annotations
 

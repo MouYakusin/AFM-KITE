@@ -4,7 +4,7 @@ Use for value-defined height regions and requested per-region mean height, Sa, S
 
 ## Supported Sample Types
 
-- HS100-MG and other patterned or calibration height maps with value-separable low-height or high-height regions.
+- Array samples such as the repository's HS100-MG group, and other patterned or calibration height maps with value-separable low-height or high-height regions.
 - Surfaces containing separable steps, islands, particles, pillars, pits, pores, or comparable regions defined by height values.
 
 Use the workflow only when the requested measurement scope is compatible with matrix, segmented-region, combined region-union, ranked-region, background, or outlier statistics. Sample type alone is not sufficient.

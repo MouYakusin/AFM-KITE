@@ -74,7 +74,7 @@ def model_metadata(model: Any) -> dict[str, Any]:
 
 
 def factor_assignment(method: str) -> dict[str, bool]:
-    """Return the two randomized capability-bundle assignments."""
+    """Return the two randomized component assignments."""
     return asdict(AGENT_VARIANTS[method])
 
 
@@ -135,7 +135,7 @@ def build_evaluation_agent_variant(
         )
     ]
 
-    # Dedicated AFM tools are an experimental treatment and remain method-specific.
+    # Deterministic AFM Tools are an experimental treatment and remain method-specific.
     if variant.tool_bundle:
         tools.extend(
             build_scoped_tools(

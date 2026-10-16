@@ -120,13 +120,13 @@ def dependency_isolation_audit(
     before: Mapping[str, str],
     after: Mapping[str, str],
 ) -> dict[str, Any]:
-    """Detect dedicated-AFM capability leakage into no-tool factorial cells."""
+    """Detect Deterministic AFM Tool leakage into Tools-disabled conditions."""
     variant = AGENT_VARIANTS[method]
     violations = []
     unexpected_calls = sorted(set(tool_calls) & DEDICATED_AFM_TOOL_NAMES)
     if not variant.tool_bundle and unexpected_calls:
         violations.append(
-            "Registered AFM tools were called: {}".format(", ".join(unexpected_calls))
+            "Registered Deterministic AFM Tools were called: {}".format(", ".join(unexpected_calls))
         )
 
     code_suffixes = {".py", ".sh", ".bash", ".zsh"}

@@ -1,4 +1,4 @@
-"""Shared deterministic AFM analysis infrastructure.
+"""Deterministic execution layer for the AFM-KITE framework.
 
 Agent-specific configuration lives in the project entry points.
 This package provides reusable public tools, in-memory algorithms, and AFM data I/O.

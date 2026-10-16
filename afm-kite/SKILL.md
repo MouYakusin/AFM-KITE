@@ -1,9 +1,11 @@
 ---
 name: afm-kite
-description: Analyze AFM and KPFM raw exports, matrices, and multichannel data. Use for periodic topography and pitch, segmented-region height and roughness, whole-map roughness with largest-area defect depth, registered condition-pair region means and changes, and cross-input topography-signal correlations. Route requests through generic scientific workflows while keeping scan-mode, channel physics, and sample-specific meaning out of public tool names and descriptions.
+description: AFM Analysis Skill for routing quantitative AFM/KPFM requests into reusable workflows. It encodes procedural domain knowledge, metric definitions, parameter rules, quality gates, and reporting boundaries for periodic, wafer, array, granular, and cross-input analyses while leaving numerical execution to Deterministic AFM Tools or the capability-aware generic-compute fallback.
 ---
 
 # AFM-KITE
+
+This file is the AFM Analysis Skill used by the AFM-KITE framework. It is a versioned representation of reusable procedural knowledge, not a new AFM algorithm and not a substitute for expert review. The LLM Agent uses it to interpret a request, select a workflow, resolve measurement semantics, and choose parameters; Deterministic AFM Tools execute the established numerical operations.
 
 ## Scientific Contract
 
@@ -12,6 +14,8 @@ description: Analyze AFM and KPFM raw exports, matrices, and multichannel data. 
 - Keep preprocessing, quality control, and intermediate artifacts separate from reported measurements.
 - Allow the selected workflow to calculate and preserve supporting values needed for selection, validation, and quality control without treating them as user-requested results.
 - Use rendered images only for qualitative review, never as quantitative evidence.
+- Treat every workflow as a bounded analysis contract. Do not generalize the paper's four-category evaluation results to all AFM modes, datasets, or scientific tasks.
+- Preserve expert review as the governance boundary when a new workflow, metric definition, parameter rule, or scientific interpretation is introduced.
 
 ## Reference Loading
 
@@ -37,7 +41,7 @@ For each required scientific operation, use a matching dedicated deterministic t
 
 Establish one ingest representation per physical input. When `data_ingest` is exposed, call it once for that input and reuse its channel index, metadata, and manifest. Otherwise pass the physical input directly to `generic_compute` once for ingestion and reuse the resulting representation. Report a missing capability only when neither the exposed dedicated tools nor `generic_compute` can perform a required scientific operation.
 
-The Skill owns domain decisions that map AFM/KPFM language to scientific operations and tool arguments, including channel role, trend mode, measurement scope, direction selection, thresholds, calibration, relationship semantics, and physical interpretation.
+The Skill owns the procedural decisions that map AFM/KPFM language to scientific operations and tool arguments, including channel role, trend mode, measurement scope, direction selection, thresholds, calibration, relationship semantics, metric definitions, and physical interpretation. It does not establish physical ground truth; reported values remain conditional on validated metadata, data quality, workflow assumptions, and the requested measurement scope.
 
 ## Domain Reporting
 

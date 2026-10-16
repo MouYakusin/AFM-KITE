@@ -115,7 +115,7 @@ def build_plan(
         "factor_schema_version": FACTOR_SCHEMA_VERSION,
         "prompt_contract_version": PROMPT_CONTRACT_VERSION,
         "artifact_policy_version": ARTIFACT_POLICY_VERSION,
-        "design": "2x2 capability-bundle factorial with constrained-random order",
+        "design": "2x2 component-ablation design with constrained-random order",
         "experiment_series_id": args.experiment_series_id,
         "experiment_series_id_source": args.experiment_series_id_source,
         "factor_definitions": FACTOR_DEFINITIONS,

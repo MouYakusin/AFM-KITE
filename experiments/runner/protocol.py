@@ -10,7 +10,7 @@ from typing import Any, Mapping
 
 @dataclass(frozen=True)
 class AgentVariant:
-    """Capability bundles assigned to one experiment method."""
+    """AFM-KITE components assigned to one ablation condition."""
 
     skill_bundle: bool
     tool_bundle: bool
@@ -26,7 +26,7 @@ AGENT_VARIANTS = {
 FACTOR_DEFINITIONS = {
     "skill_bundle": {
         "description": (
-            "AFM-KITE Skill snapshot, references, bundle prompt, and context-loading overhead."
+            "AFM Analysis Skill snapshot, references, bundle prompt, and context-loading overhead."
         ),
         "components": [
             "skill_snapshot",
@@ -37,7 +37,7 @@ FACTOR_DEFINITIONS = {
     },
     "tool_bundle": {
         "description": (
-            "Dedicated deterministic AFM tools and their necessary callable schemas."
+            "Deterministic AFM Tools and their necessary callable schemas."
         ),
         "components": [
             "dedicated_afm_tool_registration",
@@ -58,7 +58,7 @@ PROMPTS = EXPERIMENTS_DIR / "prompts.json"
 GROUPS = ("grating", "hs100_mg", "perovskite", "wafer", "ag_tio2")
 PROMPT_NAMESPACES = {"task_prompts", "system_prompts"}
 FACTOR_SCHEMA_VERSION = "constrained-random-cell-v11"
-PROMPT_CONTRACT_VERSION = "afm-prompt-contract-v2"
+PROMPT_CONTRACT_VERSION = "afm-prompt-contract-v3"
 
 
 def _join_prompt_parts(

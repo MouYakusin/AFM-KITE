@@ -5,7 +5,7 @@ Use for the mean target-channel signal of the same registered grain, particle, i
 ## Supported Sample Types
 
 - Paired AFM/KPFM measurements of the same sample before and after treatment, illumination, or another ordered condition change.
-- Ag-TiO2 grains or islands, and comparable samples with a height-like registration channel and a target-signal channel such as potential.
+- Granular samples such as the repository's Ag-TiO2 group, and comparable samples with a height-like registration channel and a target-signal channel such as potential.
 
 Use the workflow only when the target is a same-region condition-A/B mean comparison and second-minus-first change. Sample type alone is not sufficient.
 
